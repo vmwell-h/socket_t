@@ -23,7 +23,8 @@
 
 int main(){
 
-    char *filename = "Jar of Love.mp3";
+    char filename[BUF_SIZE];
+    strcpy(filename, "Jar of Love.mp3");
     FILE *fp;
 
     if ((fp = fopen (filename, "rb")) == NULL)

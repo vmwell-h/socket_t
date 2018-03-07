@@ -48,6 +48,8 @@ int main(int argc,char * argv[])
     
     if (arg_flg == 0)
         strcpy(domain,"www.baidu.com");
+
+    printf("use gethostbyname\n");
     struct hostent *host;
     if(!(host = gethostbyname(domain))) {
       printf("Get IP address error!.\n");
@@ -62,4 +64,28 @@ int main(int argc,char * argv[])
     for(int i=0; host->h_addr_list[i]; i++)
       printf("IP addr %d: %s\n", i+1, inet_ntoa( *(struct in_addr*)host->h_addr_list[i] ) );
 
+
+    printf("use getaddrinfo\n");
+    // 解析连接地址
+    int rc = -1;
+    struct addrinfo *result = NULL;
+    struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
+
+    char *addr = domain;
+    if (addr[0] == '[') ++addr;
+    rc = getaddrinfo(addr, NULL, &hints, &result);
+
+    if (rc == 0)
+    {
+        struct addrinfo* res = result;
+
+        while (res)
+        {
+            printf("ai_family: %d, (AF_INET=2, AF_INET6=10)\n",res->ai_family);
+            printf("ai_socktype: %d, (SOCK_STREAM=1,SOCK_DGRAM=2,SOCK_RAW=3)\n",res->ai_socktype);
+            printf("ai_protocol: %d, (IPPROTO_TCP=6, IPPROTO_UDP=17)\n",res->ai_protocol);
+            printf("ip: %s\n",inet_ntoa(((struct sockaddr_in*)(res->ai_addr))->sin_addr));
+            res = res->ai_next;
+        }
+    }
 }
